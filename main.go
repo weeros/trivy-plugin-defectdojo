@@ -85,7 +85,7 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 		if( *resp.Count > 0) {
 			cfg.PRODUCT_ID = *products[0].ID
 		} else {
-			fmt.Println("Not Found product", cfg.PROJECT_NAME)
+			fmt.Println("Product Not Found", cfg.PROJECT_NAME)
 			return
 		}
 	}
@@ -112,7 +112,7 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 
 		resp, err := dj.Engagements.List(ctx, opts2)
 		if err != nil {
-			fmt.Println("nagement:", err)
+			fmt.Println("Engagement:", err)
 			return
 		}
 	
@@ -142,24 +142,24 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 
 		resp, err := dj.Engagements.Create(ctx, engagement)
 		if err != nil {
-			fmt.Println("engagement:", err)
+			fmt.Println("Engagement:", err)
 			return
 		}
-		fmt.Println("engagement créé")			
+		fmt.Println("Engagement created !")			
 		cfg.ENGAGEMENT_ID = *resp.Id
 	} 
 
 	engagement, err := dj.Engagements.Read(ctx, cfg.ENGAGEMENT_ID)
 	if err != nil {
-		fmt.Println("engagement:", err)
+		fmt.Println("Engagement:", err)
 		return
 	}
 	b, err := json.Marshal(engagement)
 	if err != nil {
-		fmt.Println("engagement:marshal:", err)
+		fmt.Println("Engagement:marshal:", err)
 		return
 	}
-	fmt.Println("engagement:", string(*engagement.Name))
+	fmt.Println("Engagement:", string(*engagement.Name))
 	fmt.Println(string(b))
 }
 
@@ -177,15 +177,16 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 
 	resp1, err := dj.ImportScan.Create(ctx, scan)
 	if err != nil {
-		fmt.Println("import:", err)
+		fmt.Println("ImportScan:", err)
 		return
 	}
 	
 	b, err := json.Marshal(resp1)
 	if err != nil {
-		fmt.Println("import:", err)
+		fmt.Println("ImportScan:", err)
 		return
 	}
 
+	fmt.Println("ImportScan:",string(cfg.REPORT_JSON))
 	fmt.Println(string(b))
 }
