@@ -1,0 +1,4 @@
+github.com/caarlos0/env/v11 v11.3.1 h1:cArPWC15hWmEt+gWk7YBi7lEXTXCvpaSdCiZE2X5mCA=
+github.com/caarlos0/env/v11 v11.3.1/go.mod h1:qupehSf/Y0TUTsxKywqRt/vJjN5nz6vauiYEUUr8P4U=
+github.com/truemilk/go-defectdojo v0.6.1 h1:AN6+a53cmi1gwGvPlwwrdgyExY4xhyk0IGPuqBqO60Y=
+github.com/truemilk/go-defectdojo v0.6.1/go.mod h1:JRo+hAqpe8ML9OYi63OGdRreGeq2drfBJcqtSVncVpA=
