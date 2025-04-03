@@ -1,5 +1,5 @@
-name: <plugin_name>
-repository: github.com/weroos/trivy-plugin-defectdojo
+name: defectdojo
+repository: github.com/weeros/trivy-plugin-defectdojo
 version: "0.1.0"
 usage: Template
 description: |-
@@ -8,20 +8,20 @@ platforms:
   - selector:
       os: darwin
       arch: amd64
-    uri: https://github.com/weroos/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_0.1.0_darwin-amd64.tar.gz
-    bin: ./<plugin_name>
+    uri: https://github.com/weeros/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_v0.1.0_darwin-amd64.tar.gz
+    bin: ./defectdojo
   - selector:
       os: darwin
       arch: arm64
-    uri: https://github.com/weroos/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_0.1.0_darwin-arm64.tar.gz
-    bin: ./<plugin_name>
+    uri: https://github.com/weeros/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_v0.1.0_darwin-arm64.tar.gz
+    bin: ./defectdojo
   - selector:
       os: linux
       arch: amd64
-    uri: https://github.com/weroos/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_0.1.0_linux-amd64.tar.gz
-    bin: ./<plugin_name>
+    uri: https://github.com/weeros/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_v0.1.0_linux-amd64.tar.gz
+    bin: ./defectdojo
   - selector:
       os: linux
       arch: arm64
-    uri: https://github.com/weroos/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_0.1.0_linux-arm64.tar.gz
-    bin: ./<plugin_name>
+    uri: https://github.com/weeros/trivy-plugin-defectdojo/releases/download/v0.1.0/trivy-plugin-defectdojo_v0.1.0_linux-arm64.tar.gz
+    bin: ./defectdojo
