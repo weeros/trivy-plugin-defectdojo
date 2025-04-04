@@ -19,9 +19,11 @@ type Config struct {
     URL    string `env:"TRIVY_DEFECTDOJO_URI" localhost:"8080"`
     APIKEY   string `env:"TRIVY_DEFECTDOJO_APIKEY" envDefault:"xxxxxxxxx"`
     PRODUCT_ID   int `env:"TRIVY_DEFECTDOJO_PRODUCT_ID" envDefault:"0"`
-    PROJECT_NAME  string `env:"TRIVY_DEFECTDOJO_PROJECT_NAME" envDefault:"xxxxxxxxx"`
+    PRODUCT_NAME  string `env:"TRIVY_DEFECTDOJO_PRODUCT_NAME" envDefault:""`
+    PRODUCT_TYPE_ID   int `env:"TRIVY_DEFECTDOJO_PRODUCT_TYPE_ID" envDefault:"0"`
+    PRODUCT_TYPE_NAME  string `env:"TRIVY_DEFECTDOJO_PRODUCT_TYPE_NAME" envDefault:"internal"`
     ENGAGEMENT_ID   int `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_ID" envDefault:"0"`
-    ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"developement"`
+    ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"build"`
     BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_BRANCH_TAG"`
     COMMIT_HASH  string `env:"TRIVY_DEFECTDOJO_COMMIT_HASH"`
 	REPORT_JSON  string `env:"TRIVY_DEFECTDOJO_REPORT_JSON" envDefault:"trivy.report.json"`
@@ -54,7 +56,8 @@ func run() error {
 
 	ctx := context.Background()
 
-	if(cfg.PRODUCT_ID == 0 && len(cfg.PROJECT_NAME) == 0 || cfg.ENGAGEMENT_ID ==0 && len(cfg.ENGAGEMENT_NAME) == 0 ) { 
+	if(cfg.PRODUCT_ID == 0 && len(cfg.PRODUCT_NAME) == 0 || cfg.ENGAGEMENT_ID ==0 && len(cfg.ENGAGEMENT_NAME) == 0 ) { 
+		fmt.Println("TRIVY_DEFECTDOJO_PRODUCT_ID or TRIVY_DEFECTDOJO_PRODUCT_NAME is set", cfg.PRODUCT_NAME)
 		return err
 	}
 
@@ -72,7 +75,7 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 	if(cfg.PRODUCT_ID == 0) {
 		opts := &defectdojo.ProductsOptions{
 			Limit:    1,
-			Name: url.QueryEscape(cfg.PROJECT_NAME),
+			Name: url.QueryEscape(cfg.PRODUCT_NAME),
 		}
 	
 		resp, err := dj.Products.List(ctx, opts)
@@ -84,11 +87,68 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 		products := *resp.Results
 		if( *resp.Count > 0) {
 			cfg.PRODUCT_ID = *products[0].ID
+		} 
+	}
+
+	if(cfg.PRODUCT_ID == 0) {
+					
+		if(cfg.PRODUCT_TYPE_ID == 0) {
+				
+			opts := &defectdojo.ProductTypesOptions{
+				Name:    cfg.PRODUCT_TYPE_NAME,
+			}
+
+			resp, err := dj.ProductTypes.List(ctx, opts)
+			if err != nil {
+				fmt.Println("ProductType:", err)
+				return
+			}
+		
+			productTypes := *resp.Results
+			if( *resp.Count > 0) {
+				cfg.PRODUCT_TYPE_ID = *productTypes[0].Id
+			}
+
 		} else {
-			fmt.Println("Product Not Found", cfg.PROJECT_NAME)
+			_, err := dj.ProductTypes.Read(ctx, cfg.PRODUCT_TYPE_ID)
+			if err != nil {
+				fmt.Println("ProductType:", err)
+				return
+			}
+		}
+		
+		
+		if(cfg.PRODUCT_TYPE_ID == 0) {
+				
+			productType := &defectdojo.ProductType{
+				Name: &cfg.PRODUCT_TYPE_NAME,
+			}
+
+			resp, err := dj.ProductTypes.Create(ctx, productType)
+			if err != nil {
+				fmt.Println("ProductType:", err)
+				return
+			}
+			fmt.Println("ProductType created !")			
+			cfg.PRODUCT_TYPE_ID = *resp.Id
+		}
+
+
+		product := &defectdojo.Product{
+			Name: &cfg.PRODUCT_NAME,
+			ProdType: &cfg.PRODUCT_TYPE_ID,
+			Description: defectdojo.Str("Change Me !"),
+		}
+
+		resp, err := dj.Products.Create(ctx, product)
+		if err != nil {
+			fmt.Println("Product:", err)
 			return
 		}
+		fmt.Println("Product created !")			
+		cfg.PRODUCT_ID = *resp.ID
 	}
+
 
 	product, err := dj.Products.Read(ctx, cfg.PRODUCT_ID)
 	if err != nil {
@@ -102,6 +162,14 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 
 
 func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
+
+	if(cfg.ENGAGEMENT_ID > 0) {
+		_, err := dj.Engagements.Read(ctx, cfg.ENGAGEMENT_ID)
+		if err != nil {
+			fmt.Println("Engagement:", err)
+			cfg.ENGAGEMENT_ID = 0
+		}
+	}
 
 	if(cfg.ENGAGEMENT_ID == 0) {
 		opts2 := &defectdojo.EngagementsOptions{
@@ -120,7 +188,7 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 		if( *resp.Count > 0) {
 			cfg.ENGAGEMENT_ID = *engagements[0].Id
 		}
-	}
+	} 
 
 	if(cfg.ENGAGEMENT_ID == 0) {
 		targetStart := time.Now()
