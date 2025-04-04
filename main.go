@@ -6,20 +6,30 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
-	"log"
 	"time"
+
 	"github.com/caarlos0/env/v11"
+
+	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/truemilk/go-defectdojo/defectdojo"
 )
 
+var CLI struct {
+	Logging struct {
+	  Level string `enum:"debug,info,warn,error" default:"info"`
+	  Type string `enum:"json,console" default:"console"`
+	} `embed:"" prefix:"logging."`
+  }
+  
 type Config struct {
-    URL    string `env:"TRIVY_DEFECTDOJO_URI" localhost:"8080"`
+    URL    string `env:"TRIVY_DEFECTDOJO_URL" localhost:"8080"`
     APIKEY   string `env:"TRIVY_DEFECTDOJO_APIKEY" envDefault:"xxxxxxxxx"`
     PRODUCT_ID   int `env:"TRIVY_DEFECTDOJO_PRODUCT_ID" envDefault:"0"`
-    PROJECT_NAME  string `env:"TRIVY_DEFECTDOJO_PROJECT_NAME" envDefault:"xxxxxxxxx"`
+    PRODUCT_NAME  string `env:"TRIVY_DEFECTDOJO_PRODUCT_NAME" envDefault:"xxxxxxxxx"`
     ENGAGEMENT_ID   int `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_ID" envDefault:"0"`
     ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"developement"`
     BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_BRANCH_TAG"`
@@ -29,16 +39,51 @@ type Config struct {
 
 var cfg = Config{};
 
+
+
 func main() {
 	if err := run(); err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal error", log.Err(err))
 	}
 }
 
 func run() error {
-    if err := env.Parse(&cfg); err != nil {
+
+
+	if err := env.Parse(&cfg); err != nil {
 		return err
     }
+	
+	URL := flag.String("url", "", "Url DefectDojo")
+	APIKEY := flag.String("apikey", "", "APikey DefectDojo")
+	PRODUCT_NAME := flag.String("product.name", "", "APikey DefectDojo")
+	PRODUCT_ID := flag.String("product.id", "", "APikey DefectDojo")
+	ENGAGEMENT_NAME := flag.String("engagment.name", "", "APikey DefectDojo")
+	ENGAGEMENT_ID := flag.String("engagement.id", "", "APikey DefectDojo")
+    
+	flag.Parse()
+
+	if len(*URL) > 0 {
+		cfg.URL = *URL
+	}
+
+	if len(*APIKEY) > 0 {
+		cfg.APIKEY = *APIKEY
+	}
+
+	if len(*PRODUCT_NAME) > 0 {
+		cfg.PRODUCT_NAME = *PRODUCT_NAME
+	}
+
+	if len(*APIKEY) > 0 {
+		cfg.APIKEY = *APIKEY
+	}
+
+	if len(*APIKEY) > 0 {
+		cfg.APIKEY = *APIKEY
+	}
+
+
 
 	client := &http.Client{
 		Timeout: time.Minute,
@@ -54,7 +99,7 @@ func run() error {
 
 	ctx := context.Background()
 
-	if(cfg.PRODUCT_ID == 0 && len(cfg.PROJECT_NAME) == 0 || cfg.ENGAGEMENT_ID ==0 && len(cfg.ENGAGEMENT_NAME) == 0 ) { 
+	if(cfg.PRODUCT_ID == 0 && len(cfg.PRODUCT_NAME) == 0 || cfg.ENGAGEMENT_ID ==0 && len(cfg.ENGAGEMENT_NAME) == 0 ) { 
 		return err
 	}
 
@@ -72,7 +117,7 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 	if(cfg.PRODUCT_ID == 0) {
 		opts := &defectdojo.ProductsOptions{
 			Limit:    1,
-			Name: url.QueryEscape(cfg.PROJECT_NAME),
+			Name: url.QueryEscape(cfg.PRODUCT_NAME),
 		}
 	
 		resp, err := dj.Products.List(ctx, opts)
@@ -85,7 +130,7 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 		if( *resp.Count > 0) {
 			cfg.PRODUCT_ID = *products[0].ID
 		} else {
-			fmt.Println("Product Not Found", cfg.PROJECT_NAME)
+			fmt.Println("Product Not Found", cfg.PRODUCT_NAME)
 			return
 		}
 	}
