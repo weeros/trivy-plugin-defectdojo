@@ -1,4 +1,4 @@
-module github.com/aquasecurity/defectdojo
+module github.com/weeros/defectdojo
 
 go 1.24
 
