@@ -10,4 +10,4 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 )
 
-replace github.com/truemilk/go-defectdojo v0.6.2 => ../go-defectdojo 
+//replace github.com/truemilk/go-defectdojo v0.6.2 => ../go-defectdojo 
