@@ -24,8 +24,11 @@ type Config struct {
     PRODUCT_TYPE_NAME  string `env:"TRIVY_DEFECTDOJO_PRODUCT_TYPE_NAME" envDefault:"internal"`
     ENGAGEMENT_ID   int `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_ID" envDefault:"0"`
     ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"build"`
-    BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_BRANCH_TAG"`
-    COMMIT_HASH  string `env:"TRIVY_DEFECTDOJO_COMMIT_HASH"`
+    ENGAGEMENT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_BUILD_ID"`
+    ENGAGEMENT_SROURCE_CODE_URI  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_SROURCE_CODE_URI"`
+    IMPORT_BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_IMPORT_BRANCH_TAG"`
+    IMPORT_COMMIT_HASH  string `env:"TRIVY_DEFECTDOJO_IMPORT_COMMIT_HASH"`
+    IMPORT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_IMPORT_BUILD_ID"`
 	REPORT_JSON  string `env:"TRIVY_DEFECTDOJO_REPORT_JSON" envDefault:"trivy.report.json"`
 }
 
@@ -203,8 +206,7 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 			Tags: defectdojo.Slice([]string{"Trivy"}),
 			TargetStart: defectdojo.Str(targetStartFormatted),
 			TargetEnd: defectdojo.Str(targetEndFormatted),
-			BranchTag: defectdojo.Str(cfg.BRANCH_TAG),
-			CommitHash: defectdojo.Str(cfg.COMMIT_HASH),
+			SourceCodeManagementUri: defectdojo.Str(cfg.ENGAGEMENT_SROURCE_CODE_URI),
 			EngagementType: defectdojo.Str("CI/CD"),
 		}
 
@@ -239,8 +241,9 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 		AutoCreateContext: defectdojo.Bool(true),
 		File:              defectdojo.Str(cfg.REPORT_JSON),
 		ScanType:          defectdojo.Str("Trivy Scan"),
-		BranchTag:         defectdojo.Str(cfg.BRANCH_TAG),
-		CommitHash:         defectdojo.Str(cfg.COMMIT_HASH),
+		BranchTag:         defectdojo.Str(cfg.IMPORT_BRANCH_TAG),
+		CommitHash:         defectdojo.Str(cfg.IMPORT_COMMIT_HASH),
+		BuildId:         defectdojo.Str(cfg.IMPORT_BUILD_ID),
 	}
 
 	resp1, err := dj.ImportScan.Create(ctx, scan)
