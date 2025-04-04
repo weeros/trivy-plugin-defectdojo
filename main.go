@@ -95,7 +95,7 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 		if(cfg.PRODUCT_TYPE_ID == 0) {
 				
 			opts := &defectdojo.ProductTypesOptions{
-				Name:    cfg.PRODUCT_TYPE_NAME,
+				Name: url.QueryEscape(cfg.PRODUCT_TYPE_NAME),
 			}
 
 			resp, err := dj.ProductTypes.List(ctx, opts)
@@ -174,7 +174,7 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 	if(cfg.ENGAGEMENT_ID == 0) {
 		opts2 := &defectdojo.EngagementsOptions{
 			Limit:    1,
-			Name:    cfg.ENGAGEMENT_NAME,
+			Name: url.QueryEscape(cfg.ENGAGEMENT_NAME),
 			Product: cfg.PRODUCT_ID,
 		}
 
