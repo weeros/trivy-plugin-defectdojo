@@ -7,10 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
-	"log"
+	"strings"
 	"time"
+
 	"github.com/caarlos0/env/v11"
 	"github.com/truemilk/go-defectdojo/defectdojo"
 )
@@ -26,6 +28,7 @@ type Config struct {
     ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"build"`
     ENGAGEMENT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_BUILD_ID"`
     ENGAGEMENT_SROURCE_CODE_URI  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_SROURCE_CODE_URI"`
+    ENGAGEMENT_TAGS  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_TAGS"`
     IMPORT_BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_IMPORT_BRANCH_TAG"`
     IMPORT_COMMIT_HASH  string `env:"TRIVY_DEFECTDOJO_IMPORT_COMMIT_HASH"`
     IMPORT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_IMPORT_BUILD_ID"`
@@ -200,10 +203,14 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 		targetStartFormatted := fmt.Sprintf("%d-%02d-%02d", targetStart.Year(), targetStart.Month(), targetStart.Day())
 		targetEndFormatted := fmt.Sprintf("%d-%02d-%02d", targetEnd.Year(), targetEnd.Month(), targetEnd.Day())
 
+		arr := strings.FieldsFunc(cfg.ENGAGEMENT_TAGS, func(r rune) bool {
+		   return r == ','
+		})
+
 		engagement := &defectdojo.Engagement{
 			Name: &cfg.ENGAGEMENT_NAME,
 			Product: &cfg.PRODUCT_ID,
-			Tags: defectdojo.Slice([]string{"Trivy"}),
+			Tags: defectdojo.Slice(arr),
 			TargetStart: defectdojo.Str(targetStartFormatted),
 			TargetEnd: defectdojo.Str(targetEndFormatted),
 			SourceCodeManagementUri: defectdojo.Str(cfg.ENGAGEMENT_SROURCE_CODE_URI),
