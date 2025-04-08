@@ -4,3 +4,5 @@ github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
 github.com/truemilk/go-defectdojo v0.6.2 h1:9VgJVq8I228N2O7as0drDuBy4hHTmMAi8C10RQcyG3Q=
 github.com/truemilk/go-defectdojo v0.6.2/go.mod h1:dgBYC5I0SYqsT4Dc0l2c6iS/QqxHBvrk3JANDof7V6Y=
+github.com/truemilk/go-defectdojo v0.6.3 h1:YhkpUUuJbfwhL9joHIwMe/63XbKvkN+zc8QheEYjDCU=
+github.com/truemilk/go-defectdojo v0.6.3/go.mod h1:ydnj24Vvt2f4kVhnBVsKzq2sbpDw2N3l6lX9n/vDq/8=
