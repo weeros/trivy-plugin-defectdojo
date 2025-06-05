@@ -35,6 +35,8 @@ type Config struct {
     IMPORT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_IMPORT_BUILD_ID"`
 	IMPORT_REPORT_JSON  string `env:"TRIVY_DEFECTDOJO_IMPORT_REPORT_JSON" envDefault:"trivy.report.json"`
 	IMPORT_AUTO_CREATE bool `env:"TRIVY_DEFECTDOJO_IMPORT_AUTO_CREATE" envDefault:"false"`
+	TEST_NAME int `env:"TRIVY_DEFECTDOJO_TEST_NAME" envDefault:"test"`
+	TEST_ID int `env:"TRIVY_DEFECTDOJO_TEST_ID" envDefault:"0"`
 	MODE_REIMPORT bool `env:"TRIVY_DEFECTDOJO_MODE_REIMPORT" envDefault:"false"`
 }
 
@@ -72,10 +74,12 @@ func run() error {
 
 	manageProduct(ctx,dj)
 	manageEngagement(ctx,dj)
-	if cfg.MODE_REIMPORT {
-		manageReImportScan(ctx,dj)	
-	} else {
+	
+	test := manageTests(ctx,dj)
+	if  test == 0 {
 		manageImportScan(ctx,dj)	
+	} else {
+		manageReImportScan(ctx,dj,test)	
 	}
 
 	return nil
@@ -245,6 +249,21 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 	fmt.Println(string(b))
 }
 
+func manageTests(ctx context.Context, dj *defectdojo.Client) int {
+
+	if(cfg.ENGAGEMENT_ID > 0) {
+		_, err := dj.TestTypes.Read(ctx, cfg.TEST_ID)
+		if err != nil {
+			fmt.Println("Engagement:", err)
+			cfg.ENGAGEMENT_ID = 0
+		}
+	}
+
+
+
+	return 0;
+}
+
 func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 
 	arr := strings.FieldsFunc(cfg.IMPORT_TAGS, func(r rune) bool {
@@ -279,7 +298,7 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 	fmt.Println(string(b))
 }
 
-func manageReImportScan(ctx context.Context, dj *defectdojo.Client) {
+func manageReImportScan(ctx context.Context, dj *defectdojo.Client, testId int) {
 
 	arr := strings.FieldsFunc(cfg.IMPORT_TAGS, func(r rune) bool {
 		return r == ' '
@@ -287,14 +306,16 @@ func manageReImportScan(ctx context.Context, dj *defectdojo.Client) {
 
 	scan := &defectdojo.ReImportScan{
 		ProductId:         defectdojo.Int(cfg.PRODUCT_ID),
-		EngagementId:        defectdojo.Int(cfg.ENGAGEMENT_ID),
+		EngagementId:      defectdojo.Int(cfg.ENGAGEMENT_ID),
 		ScanType:          defectdojo.Str("Trivy Scan"),
+		TestTitle:         defectdojo.Str("Trivy Scan"),
 		BranchTag:         defectdojo.Str(cfg.IMPORT_BRANCH_TAG),
 		CommitHash:        defectdojo.Str(cfg.IMPORT_COMMIT_HASH),
 		BuildId:           defectdojo.Str(cfg.IMPORT_BUILD_ID),
 		Tags:              defectdojo.Slice(arr),
 		File:              defectdojo.Str(cfg.IMPORT_REPORT_JSON),
 		AutoCreateContext: defectdojo.Bool(cfg.IMPORT_AUTO_CREATE),
+		TestId: defectdojo.Int(testId),
 	}
 	
 	resp1, err := dj.ReImportScan.Create(ctx, scan)
