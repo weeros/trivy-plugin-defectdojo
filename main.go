@@ -289,6 +289,7 @@ func manageReImportScan(ctx context.Context, dj *defectdojo.Client) {
 		ProductId:         defectdojo.Int(cfg.PRODUCT_ID),
 		EngagementId:        defectdojo.Int(cfg.ENGAGEMENT_ID),
 		ScanType:          defectdojo.Str("Trivy Scan"),
+		TestTitle:         defectdojo.Str("Trivy Scan"),
 		BranchTag:         defectdojo.Str(cfg.IMPORT_BRANCH_TAG),
 		CommitHash:        defectdojo.Str(cfg.IMPORT_COMMIT_HASH),
 		BuildId:           defectdojo.Str(cfg.IMPORT_BUILD_ID),
