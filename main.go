@@ -34,6 +34,8 @@ type Config struct {
     IMPORT_COMMIT_HASH  string `env:"TRIVY_DEFECTDOJO_IMPORT_COMMIT_HASH"`
     IMPORT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_IMPORT_BUILD_ID"`
 	IMPORT_REPORT_JSON  string `env:"TRIVY_DEFECTDOJO_IMPORT_REPORT_JSON" envDefault:"trivy.report.json"`
+	IMPORT_AUTO_CREATE bool `env:"TRIVY_DEFECTDOJO_IMPORT_AUTO_CREATE" envDefault:"false"`
+	MODE_REIMPORT bool `env:"TRIVY_DEFECTDOJO_MODE_REIMPORT" envDefault:"true"`
 }
 
 var cfg = Config{};
@@ -70,7 +72,11 @@ func run() error {
 
 	manageProduct(ctx,dj)
 	manageEngagement(ctx,dj)
-	manageImportScan(ctx,dj)	
+	if cfg.MODE_REIMPORT {
+		manageReImportScan(ctx,dj)	
+	} else {
+		manageImportScan(ctx,dj)	
+	}
 
 	return nil
 }
@@ -250,14 +256,15 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 	scan := &defectdojo.ImportScan{
 		ProductId:         defectdojo.Int(cfg.PRODUCT_ID),
 		Engagement:        defectdojo.Int(cfg.ENGAGEMENT_ID),
-		AutoCreateContext: defectdojo.Bool(true),
 		ScanType:          defectdojo.Str("Trivy Scan"),
 		BranchTag:         defectdojo.Str(cfg.IMPORT_BRANCH_TAG),
 		CommitHash:        defectdojo.Str(cfg.IMPORT_COMMIT_HASH),
 		BuildId:           defectdojo.Str(cfg.IMPORT_BUILD_ID),
 		Tags:              defectdojo.Slice(arr),
 		File:              defectdojo.Str(cfg.IMPORT_REPORT_JSON),
+		AutoCreateContext: defectdojo.Bool(cfg.IMPORT_AUTO_CREATE),
 	}
+	
 
 	resp1, err := dj.ImportScan.Create(ctx, scan)
 	if err != nil {
@@ -272,5 +279,40 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 	}
 
 	fmt.Println("ImportScan:",string(cfg.IMPORT_REPORT_JSON))
+	fmt.Println(string(b))
+}
+
+func manageReImportScan(ctx context.Context, dj *defectdojo.Client) {
+
+	arr := strings.FieldsFunc(cfg.IMPORT_TAGS, func(r rune) bool {
+		return r == ' '
+	 })
+
+	scan := &defectdojo.ReImportScan{
+		ProductId:         defectdojo.Int(cfg.PRODUCT_ID),
+		EngagementId:        defectdojo.Int(cfg.ENGAGEMENT_ID),
+		ScanType:          defectdojo.Str("Trivy Scan"),
+		BranchTag:         defectdojo.Str(cfg.IMPORT_BRANCH_TAG),
+		CommitHash:        defectdojo.Str(cfg.IMPORT_COMMIT_HASH),
+		BuildId:           defectdojo.Str(cfg.IMPORT_BUILD_ID),
+		Tags:              defectdojo.Slice(arr),
+		File:              defectdojo.Str(cfg.IMPORT_REPORT_JSON),
+		AutoCreateContext: defectdojo.Bool(cfg.IMPORT_AUTO_CREATE),
+	}
+	
+
+	resp1, err := dj.ReImportScan.Create(ctx, scan)
+	if err != nil {
+		fmt.Println("ReImportScan:", err)
+		return
+	}
+	
+	b, err := json.Marshal(resp1)
+	if err != nil {
+		fmt.Println("ReImportScan:", err)
+		return
+	}
+
+	fmt.Println("ReImportScan:",string(cfg.IMPORT_REPORT_JSON))
 	fmt.Println(string(b))
 }
