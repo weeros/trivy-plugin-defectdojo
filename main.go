@@ -35,7 +35,7 @@ type Config struct {
     IMPORT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_IMPORT_BUILD_ID"`
 	IMPORT_REPORT_JSON  string `env:"TRIVY_DEFECTDOJO_IMPORT_REPORT_JSON" envDefault:"trivy.report.json"`
 	IMPORT_AUTO_CREATE bool `env:"TRIVY_DEFECTDOJO_IMPORT_AUTO_CREATE" envDefault:"false"`
-	MODE_REIMPORT bool `env:"TRIVY_DEFECTDOJO_MODE_REIMPORT" envDefault:"true"`
+	MODE_REIMPORT bool `env:"TRIVY_DEFECTDOJO_MODE_REIMPORT" envDefault:"false"`
 }
 
 var cfg = Config{};
@@ -172,8 +172,6 @@ func manageProduct(ctx context.Context, dj *defectdojo.Client) {
 	fmt.Println("Product:", string(*product.Name))
 }
 
-
-
 func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 
 	if(cfg.ENGAGEMENT_ID > 0) {
@@ -263,8 +261,7 @@ func manageImportScan(ctx context.Context, dj *defectdojo.Client) {
 		Tags:              defectdojo.Slice(arr),
 		File:              defectdojo.Str(cfg.IMPORT_REPORT_JSON),
 		AutoCreateContext: defectdojo.Bool(cfg.IMPORT_AUTO_CREATE),
-	}
-	
+	}	
 
 	resp1, err := dj.ImportScan.Create(ctx, scan)
 	if err != nil {
@@ -300,7 +297,6 @@ func manageReImportScan(ctx context.Context, dj *defectdojo.Client) {
 		AutoCreateContext: defectdojo.Bool(cfg.IMPORT_AUTO_CREATE),
 	}
 	
-
 	resp1, err := dj.ReImportScan.Create(ctx, scan)
 	if err != nil {
 		fmt.Println("ReImportScan:", err)
