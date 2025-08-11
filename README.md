@@ -11,11 +11,5 @@ trivy plugin install github.com/weeros/trivy-plugin-defectdojo
 ## Usage
 
 ```shell
-trivy image --format json --output plugin=<plugin_name> [--output-plugin-arg plugin_flags] <image_name>
-```
-
-OR
-
-```shell
-trivy image -f json <image_name> | trivy <plugin_name> [plugin_flags]
+trivy defectdojo
 ```

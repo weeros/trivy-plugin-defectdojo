@@ -28,6 +28,7 @@ type Config struct {
     ENGAGEMENT_NAME  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_NAME" envDefault:"build"`
     ENGAGEMENT_BUILD_ID  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_BUILD_ID"`
     ENGAGEMENT_SROURCE_CODE_URI  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_SROURCE_CODE_URI"`
+    ENGAGEMENT_DEDUPLICATION  bool `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_DEDUPLICATION" envDefault:"true"`
     ENGAGEMENT_TAGS  string `env:"TRIVY_DEFECTDOJO_ENGAGEMENT_TAGS"`
     IMPORT_BRANCH_TAG  string `env:"TRIVY_DEFECTDOJO_IMPORT_BRANCH_TAG"`
     IMPORT_TAGS  string `env:"TRIVY_DEFECTDOJO_IMPORT_TAGS"`
@@ -220,6 +221,7 @@ func manageEngagement(ctx context.Context, dj *defectdojo.Client) {
 			TargetEnd: defectdojo.Str(targetEndFormatted),
 			SourceCodeManagementUri: defectdojo.Str(cfg.ENGAGEMENT_SROURCE_CODE_URI),
 			EngagementType: defectdojo.Str("CI/CD"),
+			DeduplicationOnEngagement: defectdojo.Bool(cfg.ENGAGEMENT_DEDUPLICATION),
 		}
 
 		resp, err := dj.Engagements.Create(ctx, engagement)
