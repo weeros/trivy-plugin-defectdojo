@@ -13,3 +13,22 @@ trivy plugin install github.com/weeros/trivy-plugin-defectdojo
 ```shell
 trivy defectdojo
 ```
+
+
+## Devlopments
+
+
+```bash
+go get -u
+```
+
+```bash
+GOPROXY=https://proxy.golang.org go mod tidy
+````
+
+
+```bash
+mkdir -p ~/.trivy/plugins/defectdojo
+cp plugin.yaml ~/.trivy/plugins/defectdojo
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ~/.trivy/plugins/defectdojo/defectdojo  main.go 
+```
